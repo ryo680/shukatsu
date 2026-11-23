@@ -984,7 +984,7 @@ fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: colu
 .seg-b .n { color: var(--ink-soft); font-size: 14px; }
 .seg-b[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .seg-b[aria-pressed="true"] .n { color: var(--accent-ink); }
-.jcard { padding: 14px 16px 12px; border: 1px solid var(--rule); border-radius: 14px; background: var(--card); scroll-margin-top: 12px; }
+.jcard { padding: 14px 16px 12px; outline: none; border: 1px solid var(--rule); border-radius: 14px; background: var(--card); scroll-margin-top: 12px; }
 .jcard-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 26px; }
 .rank { font-size: 14px; font-weight: 700; color: var(--ink-soft); margin-right: 4px; }
 .jcard-co { margin: 6px 0 0; font-size: 19px; font-weight: 700; line-height: 1.45; }
@@ -993,14 +993,26 @@ fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: colu
 .cond > div { display: grid; grid-template-columns: 3.2em 1fr; gap: 8px; align-items: baseline; }
 .cond dt { color: var(--ink-soft); font-size: 14px; font-weight: 700; }
 .cond dd { margin: 0; font-size: 16px; line-height: 1.55; white-space: pre-line; }
-.jcard-check { margin: 10px 0 0; padding-top: 10px; border-top: 1px dashed var(--rule); color: var(--ink-soft); font-size: 15px; line-height: 1.7; }
-.jcard-memo { margin: 8px 0 0; font-size: 15px; line-height: 1.6; }
+.jcard-check { margin: 10px 0 0; padding-top: 10px; border-top: 1px dashed var(--rule); color: var(--ink-soft); font-size: 15px; line-height: 1.7; white-space: pre-line; }
+.jcard-memo { margin: 8px 0 0; font-size: 15px; line-height: 1.6; white-space: pre-line; }
 .jno { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin: 10px 0 0; }
 .jno .k { display: inline; }
 .jno .v { font-size: 16px; font-weight: 700; letter-spacing: .02em; }
 .mini { min-height: 44px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); font-size: 14px; font-weight: 700; }
 .jcard-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .jcard-acts .ghost, .jcard-acts .primary { min-height: 44px; margin: 0; display: inline-flex; align-items: center; text-decoration: none; }
+
+.st-near { background: var(--warn); color: var(--warn-ink); }
+.legend-note { margin: 0 2px 12px; color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+.jcard:focus { outline: none; }
+.kenkyu { margin: 10px 0 0; border-top: 1px dashed var(--rule); }
+.kenkyu summary { display: flex; align-items: center; min-height: 44px; color: var(--accent); font-size: 15px; font-weight: 700; cursor: pointer; }
+.more-in { padding: 0 0 4px; }
+.more-in h4 { margin: 10px 0 2px; color: var(--ink-soft); font-size: 14px; font-weight: 700; }
+.more-in p { margin: 0; font-size: 15px; line-height: 1.7; }
+.more-in .links { list-style: none; margin: 0; padding: 0; }
+.more-in .links a { display: flex; align-items: center; min-height: 44px; color: var(--c0); font-size: 15px; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.soon-dl { border-left-color: var(--warn); }
 
 /* これまで */
 .kore-g { margin-top: 18px; }
@@ -1138,6 +1150,7 @@ fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: colu
       <label class="field" for="g-apply"><span>応募状況</span><select id="g-apply"><option>未応募</option><option>応募済み</option><option>見送り</option></select></label>
     </div>
     <div class="field"><label for="g-appliedOn"><span class="lbl">応募日</span></label><div class="date-row"><input type="date" id="g-appliedOn"><button type="button" class="mini" data-today="g-appliedOn">今日</button></div></div>
+    <label class="field" for="g-deadline"><span>紹介期限</span><input type="date" id="g-deadline"></label>
     <p class="form-msg" id="job-msg" role="alert"></p>
     <div class="sheet-actions">
       <button type="button" class="link danger-link" id="job-del">この求人を消す</button>
@@ -1156,7 +1169,7 @@ fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: colu
     <p class="hint" id="set-who"></p>
     <section class="set-sec">
       <h3>ファイルから読み込む</h3>
-      <p class="hint">チャットでもらった読み込み用のファイルや、バックアップ（.json）を読み込みます。同じ管理IDのものはファイルの内容で上書きされ、ほかのものはそのまま残ります。</p>
+      <p class="hint">チャットでもらった読み込み用のファイルや、バックアップ（.json）を読み込みます。選ぶと、どう入るか（上書き・入れ替え・書き足し）を先に表示します。</p>
       <label class="ghost filebtn" for="restore-file" id="restore-label">ファイルを選ぶ</label>
       <input type="file" id="restore-file" class="sr" accept=".json,application/json">
     </section>
@@ -1317,9 +1330,17 @@ import { firebaseConfig } from "./config.js";
   }
   var LISTING = ["掲載確認", "要確認", "掲載終了"];
   var APPLY = ["未応募", "応募済み", "見送り"];
+  function cleanLinks(a) {
+    return (Array.isArray(a) ? a : []).slice(0, 6).map(function (x) {
+      x = x || {};
+      return { name: str(x.name, 60), url: safeUrl(str(x.url, 600)) };
+    }).filter(function (x) { return x.name && x.url; });
+  }
+  function obj(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : {}; }
   function cleanJob(id, v) {
     v = v || {};
     var listing = str(v.listing, 10), ap = str(v.applyState, 10);
+    var rs = obj(v.research), rp = obj(v.repute);
     return {
       id: id,
       rank: str(v.rank, 10),
@@ -1333,7 +1354,11 @@ import { firebaseConfig } from "./config.js";
       check: str(v.check, 800),
       jobNo: str(v.jobNo, 60),
       memo: str(v.memo, 400),
-      url: safeUrl(str(v.url, 500)),
+      url: safeUrl(str(v.url, 600)),
+      urlName: str(v.urlName, 20),
+      deadline: isDate(v.deadline) ? v.deadline : "",
+      research: { biz: str(rs.biz, 600), work: str(rs.work, 600), reason: str(rs.reason, 600), links: cleanLinks(rs.links) },
+      repute: { rep: str(rp.rep, 600), future: str(rp.future, 600), reflect: str(rp.reflect, 600), links: cleanLinks(rp.links) },
       listing: LISTING.indexOf(listing) >= 0 ? listing : "要確認",
       applyState: APPLY.indexOf(ap) >= 0 ? ap : "未応募",
       appliedOn: isDate(v.appliedOn) ? v.appliedOn : "",
@@ -1394,33 +1419,43 @@ import { firebaseConfig } from "./config.js";
   function renderIma(el) {
     if (!S.apps.length && !S.jobs.length) { el.innerHTML = emptyHTML(); return; }
     var apply = S.apps.filter(function (a) { return a.kind === "apply"; });
-    var taiken = S.apps.filter(function (a) { return a.kind === "taiken" && stGroup(a.status) !== "done"; });
+    var taiken = S.apps.filter(function (a) { return a.kind === "taiken" && stGroup(a.status) !== "done"; }).sort(function (a, b) {
+      return wish(a) - wish(b) || (a.id < b.id ? -1 : 1);
+    });
     var naitei = sortApps(apply.filter(function (a) { return stGroup(a.status) === "naitei"; }));
     var going = sortApps(apply.filter(function (a) { return stGroup(a.status) === "going"; }));
     var plan = sortApps(apply.filter(function (a) { return stGroup(a.status) === "plan"; }));
     var soon = sortApps(S.apps.filter(function (a) {
       return a.nextOn && stGroup(a.status) !== "done" && daysFromToday(a.nextOn) <= 14;
     }));
+    var dl = S.jobs.filter(function (j) {
+      return j.deadline && j.applyState === "未応募" && j.listing !== "掲載終了" && daysFromToday(j.deadline) >= 0 && daysFromToday(j.deadline) <= 14;
+    }).sort(function (a, b) { return a.deadline < b.deadline ? -1 : a.deadline > b.deadline ? 1 : a.order - b.order; });
     var t = today();
     var html = '<div class="today"><span class="today-d">' + esc(fmtDate(t)) + "</span>" +
       '<span class="counts"><span>選考中 <b>' + going.length + '</b></span><span>応募予定 <b>' + plan.length + '</b></span><span>職場体験 <b>' + taiken.length + "</b></span></span></div>";
     if (writable()) html += '<button type="button" class="addbtn" data-new-app>' + PLUS + "応募を記録する</button>";
-    if (soon.length) {
+    function relDay(n) { return n < 0 ? "過ぎています" : n === 0 ? "今日" : n === 1 ? "明日" : n + "日後"; }
+    if (soon.length || dl.length) {
       html += '<section class="sec"><h2 class="sec-h">近い予定</h2><ul class="soon">' + soon.map(function (a) {
         var n = daysFromToday(a.nextOn);
         var rel = n < 0 ? "過ぎています" : n === 0 ? "今日" : n === 1 ? "明日" : n + "日後";
         return '<li><button type="button" class="soon-b" data-app="' + esc(a.id) + '"><span class="soon-d">' + esc(fmtDate(a.nextOn)) + '<small>' + rel + "</small></span>" +
           '<span class="soon-t"><b>' + esc(a.company) + "</b>" + esc(a.next || a.status) + "</span></button></li>";
+      }).join("") + dl.map(function (j) {
+        return '<li><button type="button" class="soon-b soon-dl" data-gojob="' + esc(j.id) + '"><span class="soon-d">' + esc(fmtDate(j.deadline)) + "<small>" + relDay(daysFromToday(j.deadline)) + "</small></span>" +
+          '<span class="soon-t"><b>' + esc(j.company) + "</b>求人の紹介期限（まだ応募していない）</span></button></li>";
       }).join("") + "</ul></section>";
     }
     html += secHTML("内定", naitei) + secHTML("選考中", going, "いま選考中のものはありません。") + secHTML("応募予定", plan) + secHTML("職場体験", taiken);
     el.innerHTML = html;
   }
+  function wish(a) { var m = /第(\d+)希望/.exec(a.role); return m ? +m[1] : 99; }
   function placeKind(j) {
+    // 完全在宅（フルリモート）だけを「在宅」に。週1日在宅などは出社のほうに入れる
     var t = j.place;
-    if (/在宅|リモート/.test(t)) return "zaitaku";
-    if (/出社/.test(t)) return "shussha";
-    return "other";
+    if (!t) return "other";
+    return /完全在宅|フルリモート|全国から/.test(t) ? "zaitaku" : "shussha";
   }
   function jobMatches(j) {
     if (S.jf === "kouho" && !(j.applyState === "未応募" && j.listing !== "掲載終了")) return false;
@@ -1429,11 +1464,35 @@ import { firebaseConfig } from "./config.js";
     if (S.pf !== "all" && placeKind(j) !== S.pf) return false;
     return true;
   }
+  function rankLabel(r) {
+    if (/^\d+$/.test(r)) return "相談順 " + r;
+    if (r === "直接") return "直接応募";
+    if (r === "未確認") return "求人番号 未確認";
+    return r;
+  }
+  function deadlineChip(j) {
+    if (!j.deadline || j.applyState !== "未応募") return "";
+    var n = daysFromToday(j.deadline);
+    if (n < 0) return '<span class="st st-done">紹介期限 過ぎた</span>';
+    return '<span class="st ' + (n <= 14 ? "st-near" : "st-plan") + '">紹介期限 ' + esc(fmtDate(j.deadline, true)) + (n <= 14 ? "（あと" + n + "日）" : "") + "</span>";
+  }
+  function moreHTML(j) {
+    var r = j.research, p = j.repute;
+    function part(h, t) { return t ? "<h4>" + h + "</h4><p>" + esc(t) + "</p>" : ""; }
+    var seen = {}, links = r.links.concat(p.links).filter(function (x) { if (seen[x.url]) return false; seen[x.url] = true; return true; });
+    var body = part("事業と配属先", r.biz) + part("業務・障がい者雇用", r.work) + part("評判・外部評価", p.rep) +
+      part("事業の続きやすさ・将来性", p.future) + part("順位の理由と確認すること", r.reason) +
+      (p.reflect && p.reflect !== r.reason ? part("評判をふまえた確認", p.reflect) : "") +
+      (links.length ? "<h4>資料</h4><ul class=\"links\">" + links.map(function (x) {
+        return '<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener noreferrer">' + esc(x.name) + "</a></li>";
+      }).join("") + "</ul>" : "");
+    return body ? '<details class="kenkyu"><summary>企業研究・評判</summary><div class="more-in">' + body + "</div></details>" : "";
+  }
   function condRow(k, v) { return v ? "<div><dt>" + k + "</dt><dd>" + esc(v) + "</dd></div>" : ""; }
   function jobCard(j) {
-    var rankLabel = /^\d+$/.test(j.rank) ? "順位 " + j.rank : j.rank;
-    return '<li class="jcard" id="job-' + esc(j.id) + '">' +
-      '<div class="jcard-top">' + (rankLabel ? '<span class="rank">' + esc(rankLabel) + "</span>" : "") +
+    var rl = rankLabel(j.rank);
+    return '<li class="jcard" id="job-' + esc(j.id) + '" tabindex="-1">' +
+      '<div class="jcard-top">' + (rl ? '<span class="rank">' + esc(rl) + "</span>" : "") + deadlineChip(j) +
         (j.listing !== "掲載確認" ? '<span class="st st-' + (j.listing === "掲載終了" ? "done" : "plan") + '">' + esc(j.listing) + "</span>" : "") +
         (j.applyState === "応募済み" ? '<span class="st st-going">応募済み' + (j.appliedOn ? " " + esc(fmtDate(j.appliedOn, true)) : "") + "</span>" : "") +
         (j.applyState === "見送り" ? '<span class="st st-done">見送り</span>' : "") + "</div>" +
@@ -1442,9 +1501,10 @@ import { firebaseConfig } from "./config.js";
       '<dl class="cond">' + condRow("場所", j.place) + condRow("時間", j.hours) + condRow("給与", j.pay) + condRow("雇用", j.employ) + "</dl>" +
       (j.check ? '<p class="jcard-check">' + esc(j.check) + "</p>" : "") +
       (j.memo ? '<p class="jcard-memo"><span class="k">メモ</span>' + esc(j.memo) + "</p>" : "") +
+      moreHTML(j) +
       (j.jobNo ? '<p class="jno"><span class="k">求人番号</span><span class="v">' + esc(j.jobNo) + '</span><button type="button" class="mini" data-copy="' + esc(j.jobNo) + '">コピー</button></p>' : "") +
       '<div class="jcard-acts">' +
-        (j.url ? '<a class="ghost" href="' + esc(j.url) + '" target="_blank" rel="noopener noreferrer">掲載ページ</a>' : "") +
+        (j.url ? '<a class="ghost" href="' + esc(j.url) + '" target="_blank" rel="noopener noreferrer">' + esc(j.urlName || "掲載ページ") + "</a>" : "") +
         (writable() && j.applyState === "未応募" ? '<button type="button" class="primary" data-apply="' + esc(j.id) + '">応募した</button>' : "") +
         (j.applyState === "応募済み" && j.appId && findBy(S.apps, j.appId) ? '<button type="button" class="ghost" data-app="' + esc(j.appId) + '">応募の記録</button>' : "") +
         (writable() ? '<button type="button" class="ghost" data-job="' + esc(j.id) + '">書き換える</button>' : "") +
@@ -1464,6 +1524,7 @@ import { firebaseConfig } from "./config.js";
     el.innerHTML =
       '<div class="seg" role="group" aria-label="求人の絞り込み">' + seg("jf", "kouho", "候補", counts.kouho) + seg("jf", "oubo", "応募した", counts.oubo) + seg("jf", "miokuri", "見送り・終了", counts.miokuri) + seg("jf", "all", "全部", counts.all) + "</div>" +
       '<div class="seg seg-sm" role="group" aria-label="働き方">' + seg("pf", "all", "どれも") + seg("pf", "zaitaku", "在宅") + seg("pf", "shussha", "出社") + "</div>" +
+      '<p class="legend-note">相談順＝ハローワークで紹介を相談する順。直接応募・atGP は別の経路。</p>' +
       (writable() ? '<button type="button" class="addbtn" data-new-job>' + PLUS + "求人を足す</button>" : "") +
       (list.length ? '<ul class="jlist">' + list.map(jobCard).join("") + "</ul>" : quietHTML("この条件の求人はありません。"));
   }
@@ -1644,6 +1705,7 @@ import { firebaseConfig } from "./config.js";
     $("g-listing").value = j.listing;
     $("g-apply").value = j.applyState;
     $("g-appliedOn").value = j.appliedOn;
+    $("g-deadline").value = j.deadline;
     $("job-msg").textContent = "";
     $("job-del").hidden = !j.id;
     $("job-del").textContent = "この求人を消す";
@@ -1672,8 +1734,11 @@ import { firebaseConfig } from "./config.js";
       check: $("g-check").value.trim().slice(0, 800), jobNo: $("g-jobNo").value.trim().slice(0, 60),
       memo: $("g-memo").value.trim().slice(0, 400), url: url,
       listing: $("g-listing").value, applyState: $("g-apply").value, appliedOn: $("g-appliedOn").value || "",
+      deadline: $("g-deadline").value || "",
       updatedAt: now
     };
+    var orig = S.edit.id ? findBy(S.jobs, S.edit.id) : null;
+    data.urlName = orig && orig.url === url ? orig.urlName : "";
     var id = S.edit.id, p;
     if (id) p = db.doc("jobs/" + id).update(data);
     else {
@@ -1735,6 +1800,16 @@ import { firebaseConfig } from "./config.js";
       toast("応募の記録を作りました。経路や次にすることを足せます");
     }, function (e) { toast(errorText(e)); });
     openApp(id, cleanApp(id, app));
+  }
+  function goJob(id) {
+    var j = findBy(S.jobs, id);
+    if (!j) return;
+    S.jf = "all";
+    S.pf = "all";
+    setView("kyujin");
+    renderList();
+    var card = $("job-" + id);
+    if (card) { card.scrollIntoView({ block: "start" }); card.focus({ preventScroll: true }); }
   }
   function copyText(t) {
     function done() { toast("求人番号をコピーしました"); }
@@ -1808,9 +1883,9 @@ import { firebaseConfig } from "./config.js";
   }
   function csvJobs() {
     var rows = S.jobs.map(function (j) {
-      return [j.rank, j.company, j.role, j.place, j.hours, j.pay, j.employ, j.check, j.jobNo, j.memo, j.url, j.listing, j.applyState, j.appliedOn];
+      return [j.rank, j.company, j.role, j.place, j.hours, j.pay, j.employ, j.check, j.jobNo, j.memo, j.url, j.listing, j.applyState, j.appliedOn, j.deadline];
     });
-    saveFile("shukatsu-kyujin-" + stamp() + ".csv", csvOf(["順位", "企業", "職種", "勤務形態・場所", "勤務時間", "額面給与", "雇用形態・登用", "比較・応募前の確認事項", "求人番号", "応募メモ", "掲載ページ", "掲載状況", "応募状況", "応募日"], rows), "text/csv");
+    saveFile("shukatsu-kyujin-" + stamp() + ".csv", csvOf(["順位", "企業", "職種", "勤務形態・場所", "勤務時間", "額面給与", "雇用形態・登用", "比較・応募前の確認事項", "求人番号", "応募メモ", "掲載ページ", "掲載状況", "応募状況", "応募日", "紹介期限"], rows), "text/csv");
     $("set-msg").textContent = "求人" + rows.length + "件をCSVで保存しました。";
   }
   function existsNow(path) {
@@ -1828,7 +1903,7 @@ import { firebaseConfig } from "./config.js";
       var j = JSON.parse(t.slice(a, b + 1));
       if (j && (j.app === "futari-kakeibo" || j.app === "kaji-memo" || j.app === "kurashi")) throw new Error("other");
       if (!j || j.app !== "shukatsu" || !j.docs || typeof j.docs !== "object" || Array.isArray(j.docs)) throw new Error("format");
-      var merge = j.mode === "merge";
+      var merge = j.mode === "merge", replace = j.mode === "replace";
       var items = [], skipped = 0;
       Object.keys(j.docs).forEach(function (path) {
         var data = j.docs[path];
@@ -1837,9 +1912,18 @@ import { firebaseConfig } from "./config.js";
         items.push({ path: path, data: data });
       });
       if (!items.length) throw new Error(skipped ? "nothing" : "empty");
-      pendingRestore = { items: items, merge: merge };
+      var inFile = {}, dels = [];
+      items.forEach(function (x) { inFile[x.path] = true; });
+      if (replace) {
+        S.apps.forEach(function (a) { if (!inFile["apps/" + a.id]) dels.push({ path: "apps/" + a.id, name: a.company }); });
+        S.jobs.forEach(function (x) { if (!inFile["jobs/" + x.id]) dels.push({ path: "jobs/" + x.id, name: x.company }); });
+      }
+      pendingRestore = { items: items, merge: merge, dels: dels.map(function (x) { return x.path; }) };
       var sum = summaryOf(items.map(function (x) { return x.path; }));
-      msg.textContent = merge
+      msg.textContent = replace
+        ? sum + "が入っています。\n「読み込む」を押すと、今の記録をこのファイルの内容に入れ替えます。" +
+          (dels.length ? "\n今入っているもののうち、このファイルにない" + dels.length + "件（" + dels.slice(0, 5).map(function (x) { return x.name; }).join("、") + (dels.length > 5 ? "など" : "") + "）は消えます。" : "")
+        : merge
         ? sum + "に、書き足す内容が入っています。" + (skipped ? "（まだ入っていない" + skipped + "件は飛ばします）" : "") + "\n「読み込む」を押すと書き足します。ほかの内容はそのままです。"
         : sum + "が入っています。\n「読み込む」を押すと入れます。同じ管理IDのものはファイルの内容で上書きされ、ほかのものはそのまま残ります。";
       run.hidden = false;
@@ -1860,10 +1944,13 @@ import { firebaseConfig } from "./config.js";
   function restoreRun() {
     if (!pendingRestore || !db) return;
     var msg = $("set-msg"), run = $("restore-run");
-    var items = pendingRestore.items, merge = pendingRestore.merge;
+    var items = pendingRestore.items, merge = pendingRestore.merge, dels = pendingRestore.dels || [];
     run.disabled = true;
     msg.textContent = "読み込んでいます…";
+    // 先に書き込み、うまくいってから、ファイルにないものを消す
     db.setMany(items, function (done) { msg.textContent = "読み込んでいます… " + done + " / " + items.length; }, merge).then(function () {
+      return dels.length ? db.deleteMany(dels) : null;
+    }).then(function () {
       msg.textContent = summaryOf(items.map(function (x) { return x.path; })) + (merge ? "に書き足しました。" : "を読み込みました。");
       run.hidden = true;
       pendingRestore = null;
@@ -1921,6 +2008,7 @@ import { firebaseConfig } from "./config.js";
   $("list").addEventListener("click", function (e) {
     var t;
     if ((t = e.target.closest("[data-app]"))) { openApp(t.getAttribute("data-app")); return; }
+    if ((t = e.target.closest("[data-gojob]"))) { goJob(t.getAttribute("data-gojob")); return; }
     if ((t = e.target.closest("[data-apply]"))) { applyFromJob(t.getAttribute("data-apply")); return; }
     if ((t = e.target.closest("[data-job]"))) { openJob(t.getAttribute("data-job")); return; }
     if ((t = e.target.closest("[data-copy]"))) { copyText(t.getAttribute("data-copy")); return; }

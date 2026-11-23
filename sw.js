@@ -1,6 +1,6 @@
 // 画面のファイルを端末に控えておき、電波が弱いときも開けるようにする。
 // 記録の読み書き（Firebase の通信）には手を出さない。
-const CACHE = "shukatsu-v1";
+const CACHE = "shukatsu-v2";
 const PREFIX = "shukatsu-"; // 同じ github.io の家計簿・家事メモの控えは消さない
 const FONT_CACHE = "ud-font-v1";
 const WAIT_MS = 3000; // ネットの返事をこれ以上待たずに、控えで開く
