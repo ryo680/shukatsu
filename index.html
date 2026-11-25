@@ -1020,7 +1020,7 @@ fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: colu
 .kore { gap: 0; border-top: 1px solid var(--rule); }
 .kore li { border-bottom: 1px solid var(--rule); }
 .kore-b { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 2px; border: 0; background: none; color: inherit; text-align: left; font: inherit; }
-.kore-d { flex: none; width: 3.6em; color: var(--ink-soft); font-size: 15px; font-weight: 700; }
+.kore-d { flex: none; min-width: 3.6em; white-space: nowrap; color: var(--ink-soft); font-size: 15px; font-weight: 700; }
 .kore-t { flex: 1; display: flex; flex-direction: column; font-size: 16px; line-height: 1.5; min-width: 0; }
 .kore-t small { color: var(--ink-soft); font-size: 14px; }
 
@@ -1284,6 +1284,8 @@ import { firebaseConfig } from "./config.js";
     return noWeek ? head : head + "（" + w + "）";
   }
   function daysFromToday(v) { return dayNum(v) - dayNum(today()); }
+  // 月日だけ（年は見出しに出すところで使う。「これまで」の行は、年が入ると幅からはみ出していた）
+  function mdOf(v) { if (!isDate(v)) return ""; var p = v.split("-"); return (+p[1]) + "/" + (+p[2]); }
 
   /* ---------- 選考状況 ---------- */
   var ST = {
@@ -1546,7 +1548,7 @@ import { firebaseConfig } from "./config.js";
         var label = g.key ? (+g.key.slice(0, 4)) + "年" + (+g.key.slice(5, 7)) + "月" : "応募日 未確認";
         return '<section class="kore-g"><h3 class="kore-h">' + label + '</h3><ul class="kore">' + g.list.map(function (a) {
           return '<li><button type="button" class="kore-b" data-app="' + esc(a.id) + '">' +
-            '<span class="kore-d">' + esc(a.appliedOn ? fmtDate(a.appliedOn, true) : "—") + "</span>" +
+            '<span class="kore-d">' + esc(a.appliedOn ? mdOf(a.appliedOn) : "—") + "</span>" +
             '<span class="kore-t"><b>' + esc(a.company) + "</b>" + (a.role ? "<small>" + esc(a.role) + "</small>" : "") + "</span>" +
             stChip(a.status) + "</button></li>";
         }).join("") + "</ul></section>";
