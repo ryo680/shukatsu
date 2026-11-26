@@ -1,6 +1,6 @@
 // 画面のファイルを端末に控えておき、電波が弱いときも開けるようにする。
 // 記録の読み書き（Firebase の通信）には手を出さない。
-const CACHE = "shukatsu-v3";
+const CACHE = "shukatsu-v4";
 const PREFIX = "shukatsu-"; // 同じ github.io の家計簿・家事メモの控えは消さない
 const FONT_CACHE = "ud-font-v1";
 const WAIT_MS = 3000; // ネットの返事をこれ以上待たずに、控えで開く
@@ -9,7 +9,8 @@ const FILES = [
   "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"
 ];
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
+  // cache: "reload"：ブラウザの一時保存を通さず、上がったばかりのファイルを取る
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES.map((f) => new Request(f, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", (e) => {
   e.waitUntil(
@@ -33,7 +34,8 @@ self.addEventListener("fetch", (e) => {
   }
   if (url.origin !== self.location.origin) return;
 
-  const net = fetch(req).then((res) => {
+  // cache: "no-cache"：毎回 GitHub に「変わった？」と確かめる（変わっていなければ中身は送られてこない）
+  const net = fetch(req, { cache: "no-cache" }).then((res) => {
     if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
     return res;
   });

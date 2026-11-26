@@ -1290,8 +1290,8 @@ import { firebaseConfig } from "./config.js";
   /* ---------- 選考状況 ---------- */
   var ST = {
     plan: ["応募予定"],
-    going: ["応募済み", "書類選考待ち", "連絡確認中", "選考中", "面接案内待ち", "面接予定", "面接結果待ち", "面談調整待ち", "体験予定"],
-    done: ["内定", "辞退", "お見送り", "体験終了"]
+    going: ["応募済み", "書類選考待ち", "連絡確認中", "選考中", "面接案内待ち", "面接予定", "面接結果待ち", "面談調整待ち", "面談予定", "体験予定"],
+    done: ["内定", "辞退", "お見送り", "面談なし", "体験終了"]
   };
   function stGroup(s) {
     if (s === "内定") return "naitei";
@@ -1592,6 +1592,7 @@ import { firebaseConfig } from "./config.js";
     if (lastFocus && typeof lastFocus.focus === "function" && document.body.contains(lastFocus)) {
       try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
     }
+    setTimeout(reloadIfNewVersion, 1500); // 新しい版が届いていて、シートを開いていたあいだ待っていた分（「保存しました」を読めるよう少し待つ）
   }
 
   /* ---------- 応募の記録 ---------- */
@@ -2236,13 +2237,58 @@ import { firebaseConfig } from "./config.js";
   }
 
 
+  /* ---------- 新しい版が届いたら、開いている画面も入れ替える ---------- */
+  // GitHub に新しい版を上げても、開いたままのタブ（とくにPC）は前の版のままになっていた。
+  // 新しい sw.js が働き始めたら読み込み直す。ただし、シートを開いている・文字を入れているあいだは待つ。
+  var UPD = { had: false, waiting: false, reloading: false, reg: null, last: 0 };
+  var UPD_EVERY = 30 * 60 * 1000; // 開いたままでも、30分に1回は新しい版がないか確かめる
+  function typingNow() {
+    var a = document.activeElement;
+    return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type !== "checkbox" && a.type !== "radio" && a.type !== "button";
+  }
+  function reloadIfNewVersion() {
+    if (!UPD.waiting || UPD.reloading) return;
+    if (!$("scrim").hidden || typingNow()) return; // 書きかけを消さない
+    UPD.reloading = true;
+    try { sessionStorage.setItem("shukatsu-updated", "1"); } catch (e) { /* ignore */ }
+    location.reload();
+  }
+  function checkNewVersion(force) {
+    if (!UPD.reg || (!force && Date.now() - UPD.last < UPD_EVERY)) return;
+    UPD.last = Date.now();
+    UPD.reg.update().catch(function () { /* 圏外など。次の機会に */ });
+  }
+  function watchNewVersion() {
+    try {
+      if (sessionStorage.getItem("shukatsu-updated")) {
+        sessionStorage.removeItem("shukatsu-updated");
+        setTimeout(function () { toast("新しい版に入れ替えました"); }, 400);
+      }
+    } catch (e) { /* ignore */ }
+    if (!("serviceWorker" in navigator)) return;
+    var sw = navigator.serviceWorker;
+    UPD.had = !!sw.controller; // 初めて開いたときは、控えができるだけなので読み込み直さない
+    UPD.last = Date.now();
+    sw.register("./sw.js").then(function (r) { UPD.reg = r; }).catch(function () { /* なくても動く */ });
+    sw.addEventListener("controllerchange", function () {
+      if (!UPD.had) { UPD.had = true; return; }
+      UPD.waiting = true;
+      reloadIfNewVersion();
+    });
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState !== "visible") return;
+      reloadIfNewVersion();
+      checkNewVersion(false);
+    });
+    document.addEventListener("focusout", function () { setTimeout(reloadIfNewVersion, 1500); }); // 入力を終えて少ししてから
+    setInterval(function () { if (document.visibilityState === "visible") checkNewVersion(false); }, 5 * 60 * 1000);
+  }
+
   function init() {
     S.view = readHash() || "ima";
     render();
     updateNet();
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js").catch(function () { /* なくても動く */ });
-    }
+    watchNewVersion();
     // 動作確認用：テストのときだけ、見本のデータ置き場を使う
     var test = window.__SHUKATSU_TEST__;
     if (test) { startApp(trackDb(test.db), test.email); return; }
